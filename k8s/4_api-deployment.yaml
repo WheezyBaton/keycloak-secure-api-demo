@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+      name: api
+spec:
+      replicas: 1
+      selector:
+            matchLabels:
+                  app: api
+      template:
+            metadata:
+                  labels:
+                        app: api
+            spec:
+                  containers:
+                        - name: api
+                          image: wheezybatom/secure-api:1.0.0
+                          env:
+                                - name: PORT
+                                  value: "3000"
+                                - name: KEYCLOAK_URL
+                                  value: "http://keycloak:8080/auth"
+                                - name: KEYCLOAK_REALM
+                                  value: "secure-realm"
+                                - name: CLIENT_ID
+                                  value: "secure-api-client"
+                          ports:
+                                - containerPort: 3000

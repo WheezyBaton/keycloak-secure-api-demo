@@ -1,0 +1,70 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+      name: keycloak-realm-config
+data:
+      realm-config.json: |
+            {
+              "realm": "secure-realm",
+              "enabled": true,
+              "clients": [
+                {
+                  "clientId": "secure-api-client",
+                  "directAccessGrantsEnabled": true,  # DODANE - umożliwia logowanie hasłem
+                  "enabled": true,
+                  "publicClient": true,
+                  "redirectUris": ["*"],
+                  "webOrigins": ["*"],
+                  "attributes": {
+                    "pkce.code.challenge.method": "S256"
+                  },
+                  "protocolMappers": [
+                    {
+                      "name": "roles",
+                      "protocol": "openid-connect",
+                      "protocolMapper": "oidc-usermodel-realm-role-mapper",
+                      "config": {
+                        "multivalued": "true",
+                        "userinfo.token.claim": "true",
+                        "id.token.claim": "true",
+                        "access.token.claim": "true",
+                        "claim.name": "roles",
+                        "jsonType.label": "String"
+                      }
+                    }
+                  ]
+                }
+              ],
+              "roles": {
+                "realm": [
+                  { "name": "admin" },
+                  { "name": "user" }
+                ]
+              },
+              "users": [
+                {
+                  "username": "admin",
+                  "enabled": true,
+                  "credentials": [
+                    {
+                      "type": "password",
+                      "value": "admin123",
+                      "temporary": false  # DODANE - zapobiega wymuszaniu zmiany hasła
+                    }
+                  ],
+                  "realmRoles": ["admin"]
+                },
+                {
+                  "username": "user1",
+                  "enabled": true,
+                  "credentials": [
+                    {
+                      "type": "password",
+                      "value": "user123",
+                      "temporary": false
+                    }
+                  ],
+                  "realmRoles": ["user"]
+                }
+              ]
+            }

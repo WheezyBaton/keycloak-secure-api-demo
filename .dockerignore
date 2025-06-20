@@ -1,0 +1,72 @@
+# Node.js dependencies
+node_modules/
+
+# Logs and debug files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.log
+
+# Build outputs
+build/
+dist/
+out/
+
+# Test and coverage
+coverage/
+test/
+tests/
+*.test.js
+*.spec.js
+
+# IDE and editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Version control
+.git/
+.gitignore
+.svn/
+.hg/
+
+# Environment and secrets
+.env*
+*.env
+*.pem
+*.key
+*.crt
+
+# Local and temp files
+.local/
+local/
+tmp/
+temp/
+*.tmp
+
+# Documentation
+README*
+*.md
+docs/
+
+# Configuration overrides
+config.local.*
+*.local.yml
+
+# Docker and compose files
+Dockerfile*
+docker-compose*
+
+# Miscellaneous
+*.DS_Store
+Thumbs.db
+
+# Exclude k8s manifests and keycloak config from build context
+k8s/
+keycloak-config/
+
+# Exclude frontend and backend Dockerfiles from context (if not needed in image)
+!/Dockerfile
+!/frontend/Dockerfile
+!/backend/Dockerfile
