@@ -33,21 +33,27 @@ docker push twoj-dockerhub-uzytkownik/secure-api:1.0.0
 
 cd ..
 
-## 3. Wdróż aplikację w Kubernetes
+## 3. W pliku api-deployment.yaml trzeba w nazwie obrazu zmienic login na swój
+
+        containers:
+                        - name: api
+                          image: wheezybatom/secure-api:1.0.0
+
+## 4. Wdróż aplikację w Kubernetes
 
 kubectl apply -f k8s/
 
-## 4. Sprawdź status wdrożenia
+## 5. Sprawdź status wdrożenia
 
 kubectl get pods --watch
 
 Czekaj aż wszystkie pody będą w stanie Running (może to zająć 1-2 minuty).
 
-## 5. Może być konieczne załadowanie realma do keycloaka
+## 6. Może być konieczne załadowanie realma do keycloaka
 
 W tym celu należy stworzyć nowy realm i załadować plik keycloak/realm-config.json
 
-## 6. Przekieruj porty
+## 7. Przekieruj porty
 
 Terminal 1 - Keycloak
 

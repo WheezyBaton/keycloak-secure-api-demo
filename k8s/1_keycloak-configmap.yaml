@@ -10,7 +10,7 @@ data:
               "clients": [
                 {
                   "clientId": "secure-api-client",
-                  "directAccessGrantsEnabled": true,  # DODANE - umożliwia logowanie hasłem
+                  "directAccessGrantsEnabled": true,
                   "enabled": true,
                   "publicClient": true,
                   "redirectUris": ["*"],
@@ -49,7 +49,7 @@ data:
                     {
                       "type": "password",
                       "value": "admin123",
-                      "temporary": false  # DODANE - zapobiega wymuszaniu zmiany hasła
+                      "temporary": false 
                     }
                   ],
                   "realmRoles": ["admin"]
