@@ -11,34 +11,34 @@ const client = jwksClient({
       jwksUri: `${process.env.KEYCLOAK_URL}/realms/${process.env.KEYCLOAK_REALM}/protocol/openid-connect/certs`,
 });
 
-// Funkcja do pobierania klucza
+// Function to fetch the key
 function getKey(header, callback) {
       client.getSigningKey(header.kid, (err, key) => {
             if (err) {
-                  console.error("Błąd pobierania klucza:", err);
+                  console.error("Error fetching key:", err);
                   return callback(err);
             }
             callback(null, key.getPublicKey());
       });
 }
 
-// Middleware z pełną weryfikacją tokena
+// Middleware with full token verification
 const authenticateToken = async (req, res, next) => {
       try {
-            console.log("Rozpoczęcie autoryzacji");
+            console.log("Starting authorization");
             const authHeader = req.headers["authorization"];
             const token = authHeader?.split(" ")[1];
 
             if (!token) {
-                  console.log("Brak tokena");
-                  return res.status(401).json({ error: "Brak tokena" });
+                  console.log("Missing token");
+                  return res.status(401).json({ error: "Missing token" });
             }
 
-            // Weryfikacja podpisu tokena
+            // Token signature verification
             const decoded = jwt.decode(token, { complete: true });
             if (!decoded) {
-                  console.log("Nieprawidłowy token");
-                  return res.status(403).json({ error: "Nieprawidłowy token" });
+                  console.log("Invalid token");
+                  return res.status(403).json({ error: "Invalid token" });
             }
 
             const key = await new Promise((resolve, reject) => {
@@ -50,45 +50,45 @@ const authenticateToken = async (req, res, next) => {
 
             jwt.verify(token, key, { algorithms: ["RS256"] }, async (err, user) => {
                   if (err) {
-                        console.error("Błąd weryfikacji JWT:", err);
-                        return res.status(403).json({ error: "Nieprawidłowy token" });
+                        console.error("JWT verification error:", err);
+                        return res.status(403).json({ error: "Invalid token" });
                   }
 
-                  // PROSTE SPRAWDZENIE UNIEWAŻNIENIA (bez introspect)
+                  // SIMPLE REVOCATION CHECK (without introspect)
                   const currentTime = Math.floor(Date.now() / 1000);
                   if (user.exp < currentTime) {
-                        console.log("Token wygasł");
-                        return res.status(403).json({ error: "Token wygasł" });
+                        console.log("Token expired");
+                        return res.status(403).json({ error: "Token expired" });
                   }
 
                   const now = Math.floor(Date.now() / 1000);
                   if (user.exp < now) {
-                        console.log(`Token wygasł (exp: ${user.exp}, now: ${now})`);
-                        return res.status(403).json({ error: "Token wygasł" });
+                        console.log(`Token expired (exp: ${user.exp}, now: ${now})`);
+                        return res.status(403).json({ error: "Token expired" });
                   }
 
                   req.user = user;
                   next();
             });
       } catch (error) {
-            console.error("Błąd autoryzacji:", error);
-            res.status(500).json({ error: "Błąd serwera" });
+            console.error("Authorization error:", error);
+            res.status(500).json({ error: "Server error" });
       }
 };
 
-// Endpoint z pełną obsługą błędów
+// Endpoint with full error handling
 app.get("/secure", authenticateToken, (req, res) => {
       try {
             const user = req.user;
             if (!user || !user.preferred_username || !user.realm_access?.roles) {
-                  return res.status(403).json({ error: "Niekompletne dane użytkownika" });
+                  return res.status(403).json({ error: "Incomplete user data" });
             }
 
             const roles = user.realm_access.roles;
 
             if (roles.includes("admin")) {
                   return res.json({
-                        message: "Dostęp administracyjny!",
+                        message: "Administrative access!",
                         user: user.preferred_username,
                         roles,
                   });
@@ -96,15 +96,15 @@ app.get("/secure", authenticateToken, (req, res) => {
 
             if (roles.includes("user")) {
                   return res.json({
-                        message: "Dostęp użytkownika",
+                        message: "User access",
                         user: user.preferred_username,
                         roles,
                   });
             }
 
-            res.status(403).json({ error: "Brak wymaganych uprawnień" });
+            res.status(403).json({ error: "Missing required permissions" });
       } catch (error) {
-            console.error("Błąd endpointa /secure:", error);
-            res.status(500).json({ error: "Błąd serwera" });
+            console.error("Error in /secure endpoint:", error);
+            res.status(500).json({ error: "Server error" });
       }
 });
